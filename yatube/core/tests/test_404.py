@@ -12,5 +12,5 @@ class PageNotFoundTests(TestCase):
         '''Проверяет правильный вызов шаблона 404'''
         self.assertTemplateUsed(
             self.guest_client.get('random-page/'),
-             'core/404.html',
+            'core/404.html',
         )

@@ -5,6 +5,7 @@ from .forms import PostForm, CommentForm
 from django.shortcuts import redirect
 from .services import paging
 from django.views.decorators.cache import cache_page
+from django.db import IntegrityError
 
 
 @cache_page(20, key_prefix="index_page")
@@ -49,7 +50,6 @@ def profile(request, username):
 ==============================================================================
     TypeError - анонимный юзер запрашивает страницу (request.user - ошибка)
     Follow.DoesNotExist - экземпляр подписки не найден
-
     Не лучше будет оставить все исключения? Типо, если получил Follow - 
     кнопка 'отписаться' (такое только у авторизированных юзеров может быть)
     Не получил Follow по любой из причин - кнопка 'отписаться'
@@ -182,7 +182,9 @@ def profile_follow(request, username):
                 author=follow_author,
             )
             return redirect("posts:profile", username=username)
-        except:  # отлавливает UNIQUE constraint failed (дубликат)
+        # отлавливает UNIQUE constraint failed (дубликат)
+        # SQL ошибка
+        except IntegrityError:
             return redirect("posts:profile", username=username)
 
 
