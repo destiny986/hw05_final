@@ -30,13 +30,16 @@ class FollowTests(TestCase):
         self.authorized_client2 = Client()
         self.authorized_client2.force_login(self.user2)
 
-    def test_unsigned_user_comment_create(self):
+    def test_signed_user_follow_and_unfollow(self):
         '''
         Авторизованный пользователь может подписываться на
         других пользователей и удалять их из подписок
         '''
         follow_count = Follow.objects.count()
-        self.authorized_client2.get(reverse('posts:profile_follow', kwargs={'username': self.test_user1.username}))
+        self.authorized_client2.get(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.test_user1.username},
+        ))
         self.assertEqual(Follow.objects.count(), follow_count + 1)
         self.assertTrue(
             Follow.objects.filter(
@@ -44,7 +47,10 @@ class FollowTests(TestCase):
                 author=self.test_user1,
             ).exists()
         )
-        self.authorized_client2.get(reverse('posts:profile_unfollow', kwargs={'username': self.test_user1.username}))
+        self.authorized_client2.get(reverse(
+            'posts:profile_unfollow',
+            kwargs={'username': self.test_user1.username},
+        ))
         self.assertEqual(Follow.objects.count(), follow_count)
         self.assertFalse(
             Follow.objects.filter(
@@ -53,7 +59,7 @@ class FollowTests(TestCase):
             ).exists()
         )
 
-    def test_unsigned_user_comment_create(self):
+    def test_post_for_followers_check(self):
         '''
         Новая запись пользователя появляется в ленте тех, кто на него
         подписан и не появляется в ленте тех, кто не подписан.

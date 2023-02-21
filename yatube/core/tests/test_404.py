@@ -10,4 +10,7 @@ class PageNotFoundTests(TestCase):
     @override_settings(DEBUG=False)
     def test_404_template(self):
         '''Проверяет правильный вызов шаблона 404'''
-        self.assertTemplateUsed(self.guest_client.get('random-page/'), 'core/404.html')
+        self.assertTemplateUsed(
+            self.guest_client.get('random-page/'),
+             'core/404.html',
+        )
