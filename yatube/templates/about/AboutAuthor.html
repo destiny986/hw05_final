@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block titlemsg %}
+    <br>
+    <h1>Задница в огне</h1>
+    <br>
+{% endblock %}
+{% block content %}
+    <p>Умный текст</p>
+    <img 
+    src='{% static 'img/cup.jpg' %}'
+    width='1620' height='2160'
+    class='d-inline-block align-top'
+    alt=''>
+{% endblock %}

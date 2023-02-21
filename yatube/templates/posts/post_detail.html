@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+  {{ article.text|truncatechars:30 }}
+{% endblock %}
+{% block content %}
+<body>
+<main>
+    <div class='row'>
+    <aside class='col-12 col-md-3'>
+        <ul class='list-group list-group-flush'>
+        <li class='list-group-item'>
+            Дата публикации: {{ article.pub_date }}
+        </li>
+        {% if article.group %}
+        <li class='list-group-item'>
+            Группа: {{ article.group }}
+            <a href='{% url 'posts:group_posts' article.group.slug %}'>
+            все записи группы
+            </a>
+        </li>
+        {% endif %}
+        <li class='list-group-item'>
+            Автор: {{ article.author.get_full_name }}
+        </li>
+        <li class='list-group-item d-flex justify-content-between align-items-center'>
+            Всего постов автора:  <span >{{ post_count }}</span>
+        </li>
+        <li class='list-group-item'>
+            <a href='{% url 'posts:profile' article.author %}'>
+            все посты пользователя
+            </a>
+        </li>
+        </ul>
+    </aside>
+    <article class='col-12 col-md-9'>
+        {% thumbnail article.image "960x339" crop="center" upscale=True as im %}
+            <img class="card-img my-2" src="{{ im.url }}">
+        {% endthumbnail %}
+        <p>
+            {{ article.text }}
+        </p>
+        {% if article.author == request.user %}
+        <a class='btn btn-primary' href='{% url 'posts:post_edit' article.id %}'>
+            редактировать запись
+        </a>
+        {% endif %}
+        {% include 'posts/includes/comment.html' %}
+    </article> 
+    </div> 
+</main>
+</body>
+{% endblock %}
