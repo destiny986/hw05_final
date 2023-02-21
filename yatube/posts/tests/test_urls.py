@@ -13,22 +13,22 @@ class URLTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.group = Group.objects.create(
-            title="Тестовое название группы",
-            slug="test-slug",
-            description="Тестовый текст",
+            title='Тестовое название группы',
+            slug='test-slug',
+            description='Тестовый текст',
         )
         cls.test_user = User.objects.create_user(
-            username="test1",
-            email="test@test.ru",
-            password="testpwd",
+            username='test1',
+            email='test@test.ru',
+            password='testpwd',
         )
         cls.test_user2 = User.objects.create_user(
-            username="test2",
-            email="test2@test.ru",
-            password="testpwd",
+            username='test2',
+            email='test2@test.ru',
+            password='testpwd',
         )
         cls.post = Post.objects.create(
-            text="Тестовый текст поста",
+            text='Тестовый текст поста',
             author=cls.test_user,
             group=cls.group,
         )
@@ -45,22 +45,22 @@ class URLTests(TestCase):
         self.user2 = self.test_user2
         self.authorized_client2 = Client()
         self.authorized_client2.force_login(self.user2)
-        self.URL_INDEX = "/"
-        self.URL_GROUP = f"/group/{self.group.slug}/"
-        self.URL_PROFILE = f"/profile/{self.user.username}/"
-        self.URL_POST = f"/posts/{self.post.pk}/"
-        self.URL_POST_EDIT = f"/posts/{self.post.pk}/edit/"
-        self.URL_CREATE = "/create/"
+        self.URL_INDEX = '/'
+        self.URL_GROUP = f'/group/{self.group.slug}/'
+        self.URL_PROFILE = f'/profile/{self.user.username}/'
+        self.URL_POST = f'/posts/{self.post.pk}/'
+        self.URL_POST_EDIT = f'/posts/{self.post.pk}/edit/'
+        self.URL_CREATE = '/create/'
         self.UNAUTHORIZED_REDIRECT_POST_EDIT = (
-            f"/auth/login/?next=/posts/{self.post.pk}/edit/"
+            f'/auth/login/?next=/posts/{self.post.pk}/edit/'
         )
-        self.UNAUTHORIZED_REDIRECT_CREATE = "/auth/login/?next=/create/"
+        self.UNAUTHORIZED_REDIRECT_CREATE = '/auth/login/?next=/create/'
 
     def test_unsigned_user_access(self):
-        """
+        '''
         Проверяет достут к страницам и редирект
         для неавторизированных пользователей.
-        """
+        '''
         url_dict = {
             self.URL_INDEX: 200,
             self.URL_GROUP: 200,
@@ -68,7 +68,7 @@ class URLTests(TestCase):
             self.URL_POST: 200,
             self.URL_POST_EDIT: 302,
             self.URL_CREATE: 302,
-            "/unexisting_page/": 404,
+            '/unexisting_page/': 404,
         }
         redirect_dict = {
             self.URL_POST_EDIT: self.UNAUTHORIZED_REDIRECT_POST_EDIT,
@@ -88,7 +88,7 @@ class URLTests(TestCase):
                     self.assertEqual(response.status_code, code)
 
     def test_signed_user_access(self):
-        """Проверяет достут к страницам для авторизированных пользователей."""
+        '''Проверяет достут к страницам для авторизированных пользователей.'''
         url_dict = {
             self.URL_INDEX: 200,
             self.URL_GROUP: 200,
@@ -96,7 +96,7 @@ class URLTests(TestCase):
             self.URL_POST: 200,
             self.URL_POST_EDIT: 200,
             self.URL_CREATE: 200,
-            "/unexisting_page/": 404,
+            '/unexisting_page/': 404,
         }
         for address, code in url_dict.items():
             with self.subTest(address=address):
@@ -104,22 +104,22 @@ class URLTests(TestCase):
                 self.assertEqual(response.status_code, code)
 
     def test_foreign_post_edit(self):
-        """
+        '''
         Проверяет редирект при редактирования чужого поста
         у авторизированных пользователей.
-        """
+        '''
         response = self.authorized_client2.get(self.URL_POST_EDIT, follow=True)
         self.assertRedirects(response, self.URL_POST)
 
     def test_urls_uses_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
+        '''URL-адрес использует соответствующий шаблон.'''
         template_dict = {
-            self.URL_INDEX: "posts/index.html",
-            self.URL_GROUP: "posts/group_list.html",
-            self.URL_PROFILE: "posts/profile.html",
-            self.URL_POST: "posts/post_detail.html",
-            self.URL_POST_EDIT: "posts/create_post.html",
-            self.URL_CREATE: "posts/create_post.html",
+            self.URL_INDEX: 'posts/index.html',
+            self.URL_GROUP: 'posts/group_list.html',
+            self.URL_PROFILE: 'posts/profile.html',
+            self.URL_POST: 'posts/post_detail.html',
+            self.URL_POST_EDIT: 'posts/create_post.html',
+            self.URL_CREATE: 'posts/create_post.html',
         }
         for address, template in template_dict.items():
             cache.clear()
