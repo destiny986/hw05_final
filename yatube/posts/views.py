@@ -35,7 +35,35 @@ def profile(request, username):
     post_list = author.posts.all().order_by('-pub_date')
     post_count = post_list.count()
     page_obj = paging(request, post_list)
-    current_user = request.user
+    current_user = request.user     # AnonymousUser для неавторизованного
+    try:
+        Follow.objects.get(
+            user = current_user,
+            author = author,
+        )
+        is_following = True
+    except (TypeError, Follow.DoesNotExist):
+        is_following = False
+    '''
+==============================================================================
+    TypeError - анонимный юзер запрашивает страницу (request.user - ошибка)
+    Follow.DoesNotExist - экземпляр подписки не найден
+
+    Не лучше будет оставить все исключения? Типо, если получил Follow - 
+    кнопка "отписаться" (такое только у авторизированных юзеров может быть)
+    Не получил Follow по любой из причин - кнопка "отписаться"
+
+    try:
+        Follow.objects.get(
+            user = current_user,
+            author = author,
+        )
+        is_following = True
+    except:
+        is_following = False
+==============================================================================
+    Или таки вставлять ветвление проверки is_authenticated?
+
     if current_user.is_authenticated:
         try:
             Follow.objects.get(
@@ -46,37 +74,6 @@ def profile(request, username):
         except (Follow.DoesNotExist):
             is_following = False
     else:
-        is_following = False
-
-    '''
-    Изначально делал так, но pytest
-    tests/test_follow.py::TestFollow::test_follow_not_auth
-    не пропускает TypeError даже в качестве исключения:
-==============================================================================
-    current_user = request.user
-    try:
-        Follow.objects.get(
-            user = current_user,
-            author = author,
-        )
-        is_following = True
-    except (TypeError, Follow.DoesNotExist):
-        is_following = False
-==============================================================================
-    TypeError - анонимный юзер запрашивает страницу (request.user - ошибка)
-    Follow.DoesNotExist - экземпляр подписки не найден
-
-    Не лучше будет оставить все исключения? Типо, если получил Follow - 
-    кнопка "отписаться" (такое только у авторизированных юзеров может быть)
-    Не получил Follow по любой из причин - кнопка "отписаться"
-==============================================================================
-    try:
-        Follow.objects.get(
-            user = current_user,
-            author = author,
-        )
-        is_following = True
-    except:
         is_following = False
 ==============================================================================
     '''
@@ -148,6 +145,7 @@ def add_comment(request, post_id):
         comment.save()
     return redirect('posts:post_detail', post_id=post_id)
 
+
 @login_required
 def follow_index(request):
     template = 'posts/follow.html'
@@ -169,24 +167,6 @@ def follow_index(request):
 def profile_follow(request, username):
     current_user = request.user
     follow_author = get_object_or_404(User, username=username)
-    if current_user.is_authenticated:
-        if current_user == follow_author:
-            return redirect('posts:profile', username=username)
-        else:
-            Follow.objects.get_or_create(
-                user = current_user,
-                author = follow_author,
-            )
-            return redirect('posts:profile', username=username)
-    else:
-        return redirect('posts:profile', username=username)
-
-'''
-pytest не принимает TypeError: 'AnonymousUser' object is not iterable
-=====================================================================================================
-def profile_follow(request, username):
-    current_user = request.user
-    follow_author = get_object_or_404(User, username=username)
     if current_user == follow_author:
         return redirect('posts:profile', username=username)
     else:
@@ -196,26 +176,13 @@ def profile_follow(request, username):
                 author = follow_author,
             )
             return redirect('posts:profile', username=username)
-        except:
+        except:     # отлавливает UNIQUE constraint failed (дубликат)
             return redirect('posts:profile', username=username)
-=====================================================================================================
-def profile_follow(request, username):
-    current_user = request.user
-    follow_author = get_object_or_404(User, username=username)
-    if current_user.is_authenticated:
-        if current_user == follow_author:
-            return redirect('posts:profile', username=username)
-        else:
-            try:
-                Follow.objects.create(
-                    user = current_user,
-                    author = follow_author,
-                )
-                return redirect('posts:profile', username=username)
-            except:
-                return redirect('posts:profile', username=username)
-    return redirect('posts:profile', username=username)
-=====================================================================================================
+'''
+==============================================================================
+Или через get_or_create:
+
+@login_required
 def profile_follow(request, username):
     current_user = request.user
     follow_author = get_object_or_404(User, username=username)
@@ -227,6 +194,7 @@ def profile_follow(request, username):
             author = follow_author,
         )
         return redirect('posts:profile', username=username)
+==============================================================================
 '''
 
 
@@ -234,12 +202,9 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     current_user = request.user
     follow_author = get_object_or_404(User, username=username)
-    if current_user.is_authenticated:
-        get_object_or_404(
-            Follow,
-            user = current_user,
-            author = follow_author,
-        ).delete()
-        return redirect('posts:profile', username=username)
-    else:
-        return redirect('posts:profile', username=username)
+    get_object_or_404(
+        Follow,
+        user = current_user,
+        author = follow_author,
+    ).delete()
+    return redirect('posts:profile', username=username)
