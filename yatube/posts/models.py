@@ -14,6 +14,9 @@ class Group(models.Model):
     class Meta:
         verbose_name = "группы"
         verbose_name_plural = "группы"
+        indexes = [
+            models.Index(fields=['slug']),
+        ]
 
     def __str__(self) -> str:
         return self.title
@@ -43,6 +46,7 @@ class Post(CreatedModel):
     class Meta:
         verbose_name = "посты"
         verbose_name_plural = "посты"
+        ordering = ['-pub_date']
 
     def __str__(self) -> str:
         return self.text[:15]
@@ -67,6 +71,10 @@ class Comment(CreatedModel):
         verbose_name="Текст комментария", help_text="Текст комментария"
     )
 
+    class Meta:
+            verbose_name = "комментарий"
+            verbose_name_plural = "комментарии"
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -85,7 +93,7 @@ class Follow(models.Model):
     )
 
     class Meta:
-        unique_together = (
-            "user",
-            "author",
+        models.UniqueConstraint(
+            fields=['user', 'author'],
+            name='unique_follow',
         )
