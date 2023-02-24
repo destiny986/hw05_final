@@ -9,6 +9,7 @@ class PostAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_editable = ('group',)
 
+
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'post', 'author', 'text', 'pub_date')
     search_fields = ('text',)

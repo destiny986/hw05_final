@@ -72,8 +72,8 @@ class Comment(CreatedModel):
     )
 
     class Meta:
-            verbose_name = 'комментарий'
-            verbose_name_plural = 'комментарии'
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
 
 
 class Follow(models.Model):

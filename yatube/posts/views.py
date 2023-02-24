@@ -5,7 +5,6 @@ from .forms import PostForm, CommentForm
 from django.shortcuts import redirect
 from .services import paging
 from django.views.decorators.cache import cache_page
-from django.db import IntegrityError
 
 
 @cache_page(20, key_prefix='index_page')
@@ -141,8 +140,8 @@ def profile_follow(request, username):
         return redirect('posts:profile', username=username)
     else:
         Follow.objects.get_or_create(
-            user = current_user,
-            author = follow_author,
+            user=current_user,
+            author=follow_author,
         )
         return redirect('posts:profile', username=username)
 
