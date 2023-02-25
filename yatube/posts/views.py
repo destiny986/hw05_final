@@ -138,12 +138,11 @@ def profile_follow(request, username):
     follow_author = get_object_or_404(User, username=username)
     if current_user == follow_author:
         return redirect('posts:profile', username=username)
-    else:
-        Follow.objects.get_or_create(
-            user=current_user,
-            author=follow_author,
-        )
-        return redirect('posts:profile', username=username)
+    Follow.objects.get_or_create(
+        user=current_user,
+        author=follow_author,
+    )
+    return redirect('posts:profile', username=username)
 
 
 @login_required
